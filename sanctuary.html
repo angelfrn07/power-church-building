@@ -54,8 +54,9 @@
 <div class="panel">
   <div class="cap" id="cap">~1,850<span id="capsub">seats · columns kept (Option A)</span></div>
   <div class="seg">
-    <button id="optA" class="on">Option A<small>keep posts · $0</small></button>
-    <button id="optB">Option B<small>open center · $300–700K</small></button>
+    <button id="optA" class="on">A<small>keep · $0</small></button>
+    <button id="optB">B<small>open center</small></button>
+    <button id="optC">C<small>fully open</small></button>
   </div>
   <label class="tog on" id="t-worship"><input type="checkbox" checked><span>Worship lighting</span></label>
   <label class="tog" id="t-roof"><input type="checkbox"><span>Show roof</span></label>
@@ -124,6 +125,11 @@ const colAll=colMesh(COLS), colKept=colMesh(COLS_KEPT); scene.add(colAll,colKept
 const beamGroup=new THREE.Group(); scene.add(beamGroup);
 [...new Set(COLS_GONE.map(c=>Math.round(c[0])))].forEach(x=>{const b=new THREE.Mesh(new THREE.BoxGeometry(2.2,2.6,ROOM_D-6),matBeam);b.position.set(x,COL_H-1.6,2);b.castShadow=true;beamGroup.add(b);});
 const beamX=new THREE.Mesh(new THREE.BoxGeometry(ROOM_W-10,2.6,2.2),matBeam); beamX.position.set(0,COL_H-1.6,Z_STAGE+22); beamGroup.add(beamX);
+// Option C: full clear-span — every floor post gone, roof on transfer trusses overhead
+const trussGroup=new THREE.Group(); scene.add(trussGroup);
+for(let x=-84;x<=84;x+=24){const t=new THREE.Mesh(new THREE.BoxGeometry(2,4.4,ROOM_D-6),matBeam);t.position.set(x,COL_H-2.6,2);t.castShadow=true;trussGroup.add(t);}
+[Z_STAGE+16,2,28].forEach(zz=>{const tl=new THREE.Mesh(new THREE.BoxGeometry(ROOM_W-10,2,2),matBeam);tl.position.set(0,COL_H-5,zz);trussGroup.add(tl);});
+trussGroup.visible=false;
 
 // stage / cross / screens
 const stage=new THREE.Mesh(new THREE.BoxGeometry(78,3.6,14),matStage); stage.position.set(0,1.8,Z_STAGE+8); stage.castShadow=stage.receiveShadow=true; scene.add(stage);
@@ -158,23 +164,30 @@ function buildSeats(aisleX,colList){
   const m=new THREE.Matrix4(); pos.forEach((p,i)=>{m.makeTranslation(p[0],p[1],p[2]);im.setMatrixAt(i,m);}); im.instanceMatrix.needsUpdate=true;
   return {mesh:im,count:pos.length};
 }
-const seatsA=buildSeats(AISLEX_A,COLS), seatsB=buildSeats(AISLEX_B,COLS_KEPT);
-scene.add(seatsA.mesh,seatsB.mesh);
+const seatsA=buildSeats(AISLEX_A,COLS), seatsB=buildSeats(AISLEX_B,COLS_KEPT), seatsC=buildSeats(AISLEX_B,[]);
+scene.add(seatsA.mesh,seatsB.mesh,seatsC.mesh);
 
 let mode='A';
 function setMode(mm){ mode=mm;
-  const A=mode==='A';
-  colAll.visible=A; colKept.visible=!A; beamGroup.visible=!A;
-  seatsA.mesh.visible=A; seatsB.mesh.visible=!A; runA.visible=A; runB.visible=!A;
-  const cnt=A?seatsA.count:seatsB.count;
-  document.getElementById('cap').innerHTML=`~${(Math.round(cnt/50)*50).toLocaleString()}<span id="capsub">seats · ${A?'all 17 posts kept (A)':COLS_GONE.length+' posts removed (B)'}</span>`;
-  document.getElementById('optA').classList.toggle('on',A); document.getElementById('optB').classList.toggle('on',!A);
-  document.getElementById('modenote').textContent = A
-    ? 'Option A: all 17 steel columns stay (gold), aisles run on the column lines — no posts in the seats. $0 structural.'
-    : `Option B: the ${COLS_GONE.length} center & front posts are removed and the roof is carried on steel transfer beams overhead (grey). Open center sightline. ~$300–700K structural.`;
+  const isA=mm==='A', isB=mm==='B', isC=mm==='C';
+  colAll.visible=isA; colKept.visible=isB; beamGroup.visible=isB; trussGroup.visible=isC;
+  seatsA.mesh.visible=isA; seatsB.mesh.visible=isB; seatsC.mesh.visible=isC;
+  runA.visible=isA; runB.visible=isB||isC;
+  const cnt=isA?seatsA.count:isB?seatsB.count:seatsC.count;
+  const sub=isA?'all 17 posts kept (A)':isB?(COLS_GONE.length+' posts removed (B)'):'every post removed — clear span (C)';
+  document.getElementById('cap').innerHTML=`~${(Math.round(cnt/50)*50).toLocaleString()}<span id="capsub">seats · ${sub}</span>`;
+  document.getElementById('optA').classList.toggle('on',isA);
+  document.getElementById('optB').classList.toggle('on',isB);
+  document.getElementById('optC').classList.toggle('on',isC);
+  document.getElementById('modenote').textContent = isA
+    ? 'Option A: all 17 steel columns stay (gold), aisles run on the column lines — no posts in the seats, but posts remain in the room. $0 structural.'
+    : isB
+    ? `Option B: the ${COLS_GONE.length} center & front posts removed (steel transfer beams overhead). Open center; a few posts remain at the back/edges. ~$300–700K.`
+    : 'Option C: every interior post removed — a fully open, column-free room on transfer trusses overhead. The whole congregation has a clear view to the stage. Premium structural option (~$1.2M–$3M).';
 }
 document.getElementById('optA').onclick=()=>setMode('A');
 document.getElementById('optB').onclick=()=>setMode('B');
+document.getElementById('optC').onclick=()=>setMode('C');
 
 function tog(id,fn){const el=document.getElementById(id);el.querySelector('input').addEventListener('change',e=>{el.classList.toggle('on',e.target.checked);fn(e.target.checked);});}
 tog('t-worship',on=>{if(on){scene.background.set('#241d16');hemi.intensity=0.55;amb.intensity=0.35;}else{scene.background.set('#3a342b');hemi.intensity=1.1;amb.intensity=0.8;}});
@@ -182,7 +195,7 @@ tog('t-roof',on=>{roof.visible=on;});
 tog('t-spin',on=>{controls.autoRotate=on;});
 
 (function(){const q=new URLSearchParams(location.search);
-  if(q.get('opt')==='b'){setMode('B');} else setMode('A');
+  const o=q.get('opt'); if(o==='b')setMode('B'); else if(o==='c')setMode('C'); else setMode('A');
   if(q.get('clean')==='1')document.body.classList.add('clean');
   if(q.get('spin')==='0')controls.autoRotate=false;
   if(q.has('cam')){const a=q.get('cam').split(',').map(Number);if(a.length===3)camera.position.set(a[0],a[1],a[2]);}
