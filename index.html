@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Power Church · New Home at the UA Theater</title>
+<meta name="description" content="Power Church building project — interactive 3D model, sanctuary plan, and feasibility for the former Amarillo Star theater.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#211c17;--ink2:#2c2620;--bone:#f6f1e7;--paper:#fbf8f1;--muted:#7c736a;
+    --gold:#b8853c;--gold2:#cda35e;--slate:#8d918b;--line:rgba(33,28,23,.12)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:"Hanken Grotesk",-apple-system,BlinkMacSystemFont,sans-serif;color:var(--ink);
+    background:var(--paper);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+  h1,h2,h3{font-family:"Fraunces",serif;font-weight:600;line-height:1.08;letter-spacing:-.01em}
+  a{color:var(--gold)}
+  .eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700}
+
+  /* hero */
+  header{background:linear-gradient(160deg,#241f19,#39301f);color:var(--bone);padding:54px 0 60px;position:relative;overflow:hidden}
+  header .wrap{position:relative;z-index:2}
+  .mark{width:46px;height:46px;border:2.5px solid var(--gold2);border-radius:50%;display:grid;place-items:center;
+    font-family:"Fraunces",serif;font-weight:600;color:var(--gold2);font-size:22px;margin-bottom:22px}
+  header h1{font-size:clamp(31px,5.6vw,58px);color:var(--bone);max-width:16ch}
+  header h1 em{font-style:italic;color:var(--gold2)}
+  header p.sub{margin-top:18px;font-size:clamp(16px,2vw,19px);color:#d9d0c2;max-width:54ch}
+  .cta{display:inline-flex;align-items:center;gap:10px;margin-top:30px;background:var(--gold);color:#1c1306;
+    font-weight:700;font-size:16px;padding:15px 26px;border-radius:12px;text-decoration:none;transition:.15s}
+  .cta:hover{background:var(--gold2);transform:translateY(-1px)}
+  .cta.ghost{background:transparent;color:var(--bone);border:1px solid rgba(246,241,231,.32);margin-left:10px}
+  .addr{margin-top:26px;font-size:13px;letter-spacing:.04em;color:#b7ad9d}
+
+  section{padding:60px 0;border-bottom:1px solid var(--line)}
+  section h2{font-size:clamp(24px,3.4vw,36px);margin-bottom:8px}
+  section .lead{color:var(--muted);font-size:17px;max-width:60ch;margin-bottom:30px}
+
+  .facts{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:34px}
+  .fact{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .fact b{display:block;font-family:"Fraunces",serif;font-size:27px;color:var(--ink);line-height:1}
+  .fact span{font-size:12.5px;color:var(--muted);margin-top:7px;display:block}
+
+  .answer{background:#f1ece1;border:1px solid var(--line);border-radius:18px;padding:30px}
+  table{border-collapse:collapse;width:100%;margin-top:10px;font-size:15px}
+  th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line)}
+  th{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  tr.hi td{background:#e4f0e3;font-weight:700}
+  td.n{font-variant-numeric:tabular-nums;text-align:right}
+
+  .gal{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .gal figure{margin:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#eee}
+  .gal img{width:100%;display:block}
+  .gal figcaption{font-size:13px;color:var(--muted);padding:10px 14px}
+  .gal .full{grid-column:1/-1}
+
+  .keys{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+  .key{border-left:3px solid var(--gold);padding:4px 0 4px 16px}
+  .key.red{border-color:#b94a3b}.key.green{border-color:#3c8a4e}
+  .key h3{font-size:17px;margin-bottom:4px}.key p{font-size:14.5px;color:var(--muted)}
+
+  .dl{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+  .dl a{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:13px 17px;
+    text-decoration:none;color:var(--ink);font-weight:600;font-size:14.5px;display:flex;gap:9px;align-items:center}
+  .dl a:hover{border-color:var(--gold);background:#fff}
+  .dl a small{color:var(--muted);font-weight:500}
+
+  .note{font-size:13.5px;color:var(--muted);background:#f1ece1;border-radius:12px;padding:16px 18px;margin-top:26px}
+  footer{padding:40px 0 70px;color:var(--muted);font-size:13px}
+  footer b{color:var(--ink)}
+  @media(max-width:720px){.facts{grid-template-columns:1fr 1fr}.gal,.keys{grid-template-columns:1fr}.cta.ghost{margin-left:0;margin-top:10px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="mark">P</div>
+    <div class="eyebrow">Power Church · Building Project</div>
+    <h1>A new home, <em>rising from the old theater.</em></h1>
+    <p class="sub">We're turning the former Amarillo Star multiplex into Power Church. Here's the building in 3D, what it can hold, and how we get there — built from the original architect drawings.</p>
+    <div>
+      <a class="cta" href="model.html">Open the interactive 3D model →</a>
+      <a class="cta ghost" href="#sanctuary">See the sanctuary plan</a>
+    </div>
+    <div class="addr">8275 W Amarillo Blvd · Amarillo, TX · 83,422 sq ft</div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">The building</div>
+    <h2>What we're working with</h2>
+    <p class="lead">A former 14-screen theater. The expensive bones a church needs — a huge column-free room, parking, and the structure — already exist.</p>
+    <div class="facts">
+      <div class="fact"><b>83,422</b><span>square feet (gross)</span></div>
+      <div class="fact"><b>14</b><span>auditoriums incl. IMAX + RPX</span></div>
+      <div class="fact"><b>3,110</b><span>existing theater seats</span></div>
+      <div class="fact"><b>377 × 240</b><span>foot footprint</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="sanctuary">
+  <div class="wrap">
+    <div class="eyebrow">The big question</div>
+    <h2>Can we seat 1,000–1,500 on a Sunday?</h2>
+    <p class="lead">Yes. We combine the four central houses into one sanctuary by removing the walls between them — and the roof stays up, because it rests on the steel columns, not those walls.</p>
+    <div class="answer">
+      <table>
+        <tr><th>Combine these houses</th><th class="n">Existing seats</th><th class="n">As a church (chairs)</th></tr>
+        <tr><td>107 + 108 (RPX + IMAX)</td><td class="n">896</td><td class="n">~1,000–1,200</td></tr>
+        <tr class="hi"><td>106 + 107 + 108 + 109 &nbsp;★ recommended</td><td class="n">1,464</td><td class="n">~1,500–1,900</td></tr>
+        <tr><td>add 105 + 110</td><td class="n">1,816</td><td class="n">up to ~2,200</td></tr>
+      </table>
+      <div class="keys">
+        <div class="key green"><h3>Walls we remove</h3><p>The separation walls between the central houses. They're partitions, not structure — demolition under an intact roof, the lowest-cost kind.</p></div>
+        <div class="key red"><h3>What stays</h3><p>The steel columns (they hold the roof), all exterior walls, and any bracing the engineer flags. A few columns remain in the room — normal for big churches.</p></div>
+      </div>
+    </div>
+    <div class="gal" style="margin-top:24px">
+      <figure class="full"><img src="img/sanctuary-plan.png" alt="Sanctuary plan — which walls to remove"><figcaption>Green = walls to remove · gold dots = columns that stay · green zone = the combined 1,000–1,500 seat sanctuary.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">See it</div>
+    <h2>The building in 3D</h2>
+    <p class="lead">Spin it, look inside, slide the roof and walls. Built to true scale from the original CAD.</p>
+    <a class="cta" href="model.html">Open the interactive 3D model →</a>
+    <div class="gal" style="margin-top:26px">
+      <figure class="full"><img src="img/01-structure.jpg" alt="Aerial of the structure"><figcaption>The real floor plan, standing up in 3D.</figcaption></figure>
+      <figure><img src="img/05-ground.jpg" alt="Entry approach"><figcaption>The curved entry, from the lot.</figcaption></figure>
+      <figure><img src="img/03-aerial-top.jpg" alt="Plan from above"><figcaption>Plan from above.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Files</div>
+    <h2>Download &amp; share</h2>
+    <p class="lead">Everything we build for this project lives here. Hand the 3D file to an architect; share this whole page with the committee.</p>
+    <div class="dl">
+      <a href="model.html">▶ Interactive 3D model <small>· opens in browser</small></a>
+      <a href="ua-theater-structure.glb" download>⬇ 3D file (.glb) <small>· SketchUp / Blender</small></a>
+      <a href="img/sanctuary-plan.png" download>⬇ Sanctuary wall plan <small>· PNG</small></a>
+      <a href="img/floor-plan.png" download>⬇ Original floor plan <small>· PNG</small></a>
+      <a href="img/00-overview.jpg" download>⬇ Render overview <small>· JPG</small></a>
+    </div>
+    <div class="note"><b>Please note:</b> this is a planning study built from the original drawings to help us see the possibilities. Before any wall is removed, a licensed structural engineer will confirm the structure. Heights in the 3D model are working estimates until the architect's section is in hand.</div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Prepared for the <b>Power Church Building Committee</b> · Pastor Manny De Los Santos.<br>
+    Modeled from the original Amarillo Star construction CAD. Last updated June 2026.
+  </div>
+</footer>
+</body>
+</html>
