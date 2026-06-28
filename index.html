@@ -17,6 +17,9 @@
     padding:14px 18px;pointer-events:none;background:linear-gradient(180deg,rgba(12,14,15,.82),rgba(12,14,15,0))}
   .mark{width:30px;height:30px;border:2px solid var(--gold);border-radius:50%;display:grid;place-items:center;
     font-weight:800;color:var(--gold);font-size:14px;font-family:"Fraunces",serif;flex:none}
+  .logoimg{height:32px;width:auto;flex:none;filter:drop-shadow(0 0 6px rgba(224,184,118,.45))}
+  .xcross{color:var(--gold2);font-size:26px;line-height:1;flex:none;
+    text-shadow:0 0 8px rgba(224,184,118,.95),0 0 18px rgba(224,184,118,.55),0 0 30px rgba(224,184,118,.3)}
   .topbar h1{font-family:"Fraunces",serif;font-weight:600;font-size:clamp(15px,2.4vw,20px);line-height:1.05}
   .topbar h1 small{display:block;font-family:"Hanken Grotesk";font-weight:500;font-size:11px;
     letter-spacing:.14em;text-transform:uppercase;color:var(--gold2);margin-top:3px}
@@ -100,13 +103,13 @@
 </head>
 <body>
 <div id="app"></div>
-<div class="topbar"><div class="mark">P</div>
+<div class="topbar"><span class="xcross">✝</span><img class="logoimg" src="img/power-church-logo-white.png" alt="Power Church logo">
   <h1>Power Church<small>The former Amarillo Star theater · in 3D</small></h1></div>
 <button class="menubtn" id="menuBtn">☰ Explore</button>
 <div class="intro" id="intro">
   <div class="introcard">
     <div class="top">
-      <div><div class="eb">Power Church · Building Project</div><h2>What would you like to see?</h2></div>
+      <div><div class="eb"><span class="xcross" style="font-size:15px">✝</span> Power Church · Building Project</div><h2>What would you like to see?</h2></div>
       <span class="x" id="introClose" title="Close">×</span>
     </div>
     <a class="opt lead" href="cost.html"><b>Cost: Build vs Convert</b><span>What each path costs, side by side, with every number sourced.</span></a>
