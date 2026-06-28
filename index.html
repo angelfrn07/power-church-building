@@ -61,7 +61,25 @@
   .loader{position:fixed;inset:0;z-index:40;display:grid;place-items:center;background:#0f1112;transition:opacity .6s}
   .loader .l{font-family:"Fraunces",serif;color:var(--gold2);font-size:15px;letter-spacing:.05em}
   .loader.hide{opacity:0;pointer-events:none}
-  body.clean .topbar,body.clean .stats,body.clean .panel,body.clean .src,body.clean .reopen,body.clean .loader{display:none!important}
+  .intro{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:18px;
+    background:rgba(12,14,15,.45);backdrop-filter:blur(2px);transition:opacity .35s}
+  .intro.hide{opacity:0;pointer-events:none}
+  .introcard{width:min(470px,94vw);max-height:88vh;overflow:auto;background:var(--panel);border:1px solid var(--line);
+    border-radius:18px;padding:22px 20px;box-shadow:0 28px 70px rgba(0,0,0,.55)}
+  .introcard .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+  .introcard .eb{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:700}
+  .introcard h2{font-family:"Fraunces",serif;font-weight:600;font-size:22px;line-height:1.1;margin-top:4px;color:var(--bone)}
+  .introcard .top .x{cursor:pointer;color:var(--muted);font-size:24px;line-height:1;font-family:sans-serif;flex:none}
+  .opt{display:block;text-decoration:none;background:rgba(243,238,227,.05);border:1px solid var(--line);
+    border-radius:12px;padding:13px 15px;margin-top:9px;transition:.15s}
+  .opt:hover{background:rgba(200,154,82,.14);border-color:rgba(200,154,82,.5)}
+  .opt b{display:block;color:var(--bone);font-size:15.5px;font-weight:700}
+  .opt span{display:block;color:var(--muted);font-size:13px;margin-top:3px;line-height:1.45}
+  .opt.lead{border-color:rgba(200,154,82,.5);background:rgba(200,154,82,.10)}
+  .introcard .foot{text-align:center;color:var(--muted);font-size:12px;margin-top:14px}
+  .menubtn{position:fixed;right:16px;top:14px;z-index:22;display:none;background:var(--gold);color:#1a1207;border:none;
+    border-radius:999px;padding:10px 16px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;box-shadow:0 6px 18px rgba(0,0,0,.3)}
+  body.clean .topbar,body.clean .stats,body.clean .panel,body.clean .src,body.clean .reopen,body.clean .loader,body.clean .intro,body.clean .menubtn{display:none!important}
   @media (max-width:640px){
     .panel{right:10px;left:10px;width:auto;top:auto;bottom:10px;border-radius:14px;max-height:46vh;overflow:auto}
     .topbar h1{font-size:16px}
@@ -83,13 +101,21 @@
 <body>
 <div id="app"></div>
 <div class="topbar"><div class="mark">P</div>
-  <h1>Power Church<small>The former Amarillo Star theater · in 3D</small></h1>
-  <nav class="sitenav">
-    <a class="cta" href="cost.html">Cost</a>
-    <a href="options.html">Options</a>
-    <a href="sanctuary.html">Worship&nbsp;Room</a>
-    <a href="hub.html">Details</a>
-  </nav></div>
+  <h1>Power Church<small>The former Amarillo Star theater · in 3D</small></h1></div>
+<button class="menubtn" id="menuBtn">☰ Explore</button>
+<div class="intro" id="intro">
+  <div class="introcard">
+    <div class="top">
+      <div><div class="eb">Power Church · Building Project</div><h2>What would you like to see?</h2></div>
+      <span class="x" id="introClose" title="Close">×</span>
+    </div>
+    <a class="opt lead" href="cost.html"><b>Cost: Build vs Convert</b><span>What each path costs, side by side, with every number sourced.</span></a>
+    <a class="opt" href="options.html"><b>All Options</b><span>Build new, convert the theater, or lease. The pros, cons, and real numbers.</span></a>
+    <a class="opt" href="sanctuary.html"><b>Worship Room (3D)</b><span>Step inside the sanctuary and see it with the columns kept or removed.</span></a>
+    <a class="opt" href="hub.html"><b>Details &amp; Plans</b><span>The full write-up, file downloads, and the original building plans.</span></a>
+    <div class="foot">or close this to spin the building in 3D</div>
+  </div>
+</div>
 <div class="stats" id="stats"></div>
 <div class="panel" id="panel">
   <h2>Model controls <span class="x" id="closePanel">×</span></h2>
@@ -303,6 +329,10 @@ $('cut').addEventListener('input',e=>{const p=+e.target.value;
   if(p>=100){clip.constant=1e6;$('cutV').textContent='off';} else {clip.normal.set(0,0,1);clip.constant=(-H/2)+H*(p/100);$('cutV').textContent=Math.round(p)+'%';}});
 $('closePanel').onclick=()=>{$('panel').style.display='none';$('reopen').style.display='block';};
 $('reopen').onclick=()=>{$('panel').style.display='block';$('reopen').style.display='none';};
+const closeIntro=()=>{$('intro').classList.add('hide');$('menuBtn').style.display='block';};
+$('introClose').onclick=closeIntro;
+$('intro').addEventListener('click',e=>{if(e.target===$('intro'))closeIntro();});
+$('menuBtn').onclick=()=>{$('intro').classList.remove('hide');$('menuBtn').style.display='none';};
 $('reset').onclick=()=>{parapetH=34;interiorH=26;$('ph').value=34;$('ih').value=26;$('phV').textContent='34 ft';$('ihV').textContent='26 ft';
   $('cut').value=100;clip.constant=1e6;$('cutV').textContent='off';applyHeights();applyToggles();
   camera.position.set(W*0.48,H*1.5,H*1.78);controls.target.set(0,14,0);};
