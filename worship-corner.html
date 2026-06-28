@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Power Church · Corner-Stage Sanctuary (3D)</title>
+<meta name="description" content="Power Church — the combined RPX+IMAX worship room with a corner stage, ~1,180 chairs fanned toward one focal point, in 3D.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bone:#f6f1e7;--gold:#b8853c;--gold2:#e0b876;--panel:#1b1712;--line:rgba(246,241,231,.14);--muted:#a89c8c}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;background:#0f1112;font-family:"Hanken Grotesk",-apple-system,sans-serif}
+  #app{position:fixed;inset:0}
+  canvas{display:block}
+  .topbar{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;gap:10px;
+    padding:12px 16px;background:linear-gradient(180deg,rgba(15,17,18,.9),rgba(15,17,18,0));color:var(--bone)}
+  .logoimg{height:30px;width:auto;flex:none;filter:drop-shadow(0 0 6px rgba(224,184,118,.45))}
+  .xcross{color:var(--gold2);font-size:24px;line-height:1;flex:none;
+    text-shadow:0 0 8px rgba(224,184,118,.95),0 0 18px rgba(224,184,118,.55)}
+  .topbar h1{font-family:"Fraunces",serif;font-weight:600;font-size:17px;color:var(--bone);line-height:1.05}
+  .topbar h1 small{display:block;font-family:"Hanken Grotesk";font-weight:500;font-size:11px;color:#cabfa e;color:#c9bea9;margin-top:2px}
+  .nav{margin-left:auto;display:flex;gap:14px;font-size:13px}
+  .nav a{color:var(--gold2);text-decoration:none;white-space:nowrap}
+  .legend{position:fixed;left:16px;bottom:16px;z-index:18;max-width:330px;background:rgba(27,23,18,.82);
+    border:1px solid var(--line);border-radius:14px;padding:14px 16px;color:var(--bone);backdrop-filter:blur(3px)}
+  .legend h2{font-family:"Fraunces",serif;font-weight:600;font-size:16px;margin-bottom:6px}
+  .legend p{font-size:12.5px;color:#d7cdbd;line-height:1.5}
+  .legend .k{display:flex;align-items:center;gap:7px;font-size:12px;margin-top:7px;color:#d7cdbd}
+  .dot{width:11px;height:11px;border-radius:3px;flex:none}
+  .legend .cap{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.45}
+  .ctrls{position:fixed;right:16px;top:64px;z-index:18;display:flex;flex-direction:column;gap:8px}
+  .ctrls button{background:rgba(27,23,18,.85);color:var(--bone);border:1px solid var(--line);border-radius:10px;
+    padding:9px 13px;font:600 12px "Hanken Grotesk",sans-serif;cursor:pointer;min-width:104px}
+  .ctrls button.on{background:var(--gold);color:#1a1207;border-color:var(--gold)}
+  .loader{position:fixed;inset:0;z-index:40;display:grid;place-items:center;background:#0f1112;transition:opacity .6s}
+  .loader.hide{opacity:0;pointer-events:none}
+  .loader .l{font-family:"Fraunces",serif;color:var(--gold2);font-size:15px;letter-spacing:.05em}
+  @media(max-width:640px){.legend{max-width:none;left:10px;right:10px;bottom:10px}.topbar h1 small{display:none}
+    .ctrls button{min-width:0;padding:8px 10px}}
+</style>
+<script type="importmap">
+{"imports":{
+ "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+ "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
+</head>
+<body>
+<div id="app"></div>
+<div class="topbar">
+  <span class="xcross">✝</span>
+  <img class="logoimg" src="img/power-church-logo-white.png" alt="Power Church logo">
+  <h1>Corner-Stage Sanctuary<small>Combined RPX + IMAX · in 3D</small></h1>
+  <nav class="nav"><a href="index.html">← 3D theater</a><a href="options.html">Options</a></nav>
+</div>
+<div class="ctrls">
+  <button id="spin" class="on">Spin: on</button>
+  <button id="posts" class="on">Posts: shown</button>
+  <button id="top">Top view</button>
+</div>
+<div class="legend">
+  <h2>A corner stage, in 3D</h2>
+  <p><b id="ct">~1,180</b> chairs fan toward a stage in the corner. Drag to orbit, scroll or pinch to zoom.</p>
+  <div class="k"><span class="dot" style="background:#8a4242"></span> chairs facing the stage</div>
+  <div class="k"><span class="dot" style="background:#c8a24a"></span> corner stage + lit cross</div>
+  <div class="k"><span class="dot" style="background:#c0392b"></span> the 2 steel posts (in the aisles)</div>
+  <p class="cap">Combined room ~118 × 94 ft. Seat count is a planning estimate; a licensed structural engineer confirms the structure before anything is built or removed.</p>
+</div>
+<div class="loader" id="loader"><div class="l">Setting the chairs…</div></div>
+
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
+const $=id=>document.getElementById(id);
+
+// ---------- room + layout constants (feet) ----------
+const RW=118, RD=93.58;          // room width (x) x depth (z)
+const FX=10, FZ=10;              // stage focal point (corner)
+const COLS=[[59,26],[59,52]];    // the 2 interior steel posts
+const WALL_H=26, POST_H=30;
+
+const scene=new THREE.Scene();
+scene.background=new THREE.Color('#0f1112');
+scene.fog=new THREE.Fog('#0f1112', 170, 360);
+
+const camera=new THREE.PerspectiveCamera(48, innerWidth/innerHeight, 0.5, 2000);
+camera.position.set(RW+62, 78, RD+92);
+
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth,innerHeight); renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled=false;
+$('app').appendChild(renderer.domElement);
+
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true; controls.dampingFactor=.08;
+controls.target.set(54,4,40); controls.maxPolarAngle=Math.PI*0.49;
+controls.autoRotate=true; controls.autoRotateSpeed=0.45;
+
+// ---------- lights ----------
+scene.add(new THREE.HemisphereLight('#f3ead8','#2a241c',0.7));
+scene.add(new THREE.AmbientLight('#ffffff',0.22));
+const key=new THREE.DirectionalLight('#fff4df',1.05); key.position.set(95,140,55); scene.add(key);
+const fill=new THREE.DirectionalLight('#cfe0ff',0.25); fill.position.set(-60,60,-40); scene.add(fill);
+
+// ---------- ground + floor ----------
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(900,900),
+  new THREE.MeshStandardMaterial({color:'#15171a',roughness:1}));
+ground.rotation.x=-Math.PI/2; ground.position.set(RW/2,-0.2,RD/2); scene.add(ground);
+
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(RW,RD),
+  new THREE.MeshStandardMaterial({color:'#5c4631',roughness:.95}));
+floor.rotation.x=-Math.PI/2; floor.position.set(RW/2,0,RD/2); scene.add(floor);
+// floor border
+const edges=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(RW,0.1,RD)),
+  new THREE.LineBasicMaterial({color:'#7a5a2f'})); edges.position.set(RW/2,0.05,RD/2); scene.add(edges);
+
+// ---------- walls (semi-transparent so you can see in) ----------
+const wallMat=new THREE.MeshStandardMaterial({color:'#e9e2d2',transparent:true,opacity:.10,
+  roughness:1,side:THREE.DoubleSide,depthWrite:false});
+function wall(w,d,x,z){const m=new THREE.Mesh(new THREE.BoxGeometry(w,WALL_H,d),wallMat);
+  m.position.set(x,WALL_H/2,z); scene.add(m);}
+wall(RW,0.6,RW/2,0);  wall(RW,0.6,RW/2,RD);   // front/back
+wall(0.6,RD,0,RD/2);  wall(0.6,RD,RW,RD/2);   // sides
+
+// ---------- corner stage (triangular platform) ----------
+const SH=3.5;
+const tri=new THREE.Shape(); tri.moveTo(0,0); tri.lineTo(40,0); tri.lineTo(0,40); tri.lineTo(0,0);
+const stageGeo=new THREE.ExtrudeGeometry(tri,{depth:SH,bevelEnabled:false});
+stageGeo.rotateX(-Math.PI/2);   // lay flat, extrude up +Y
+const stage=new THREE.Mesh(stageGeo,new THREE.MeshStandardMaterial({color:'#b5843c',roughness:.7,metalness:.05}));
+scene.add(stage);
+// pulpit
+const pulpit=new THREE.Mesh(new THREE.BoxGeometry(2.2,3.6,1.4),
+  new THREE.MeshStandardMaterial({color:'#7a5a2f',roughness:.6}));
+pulpit.position.set(15,SH+1.8,15); scene.add(pulpit);
+
+// ---------- lit cross (behind the stage, in the corner) ----------
+const crossMat=new THREE.MeshStandardMaterial({color:'#e8c98a',emissive:'#e0b876',emissiveIntensity:1.1,roughness:.4,metalness:.3});
+const cg=[];
+cg.push(new THREE.BoxGeometry(1.1,15,1.1));               // vertical
+const cb=new THREE.BoxGeometry(6,1.1,1.1); cb.translate(0,4.2,0);  // horizontal
+cg.push(cb);
+const crossGeo=mergeGeometries(cg);
+const cross=new THREE.Mesh(crossGeo,crossMat);
+cross.position.set(7.5,SH+7.5,7.5); cross.rotation.y=Math.PI/4; scene.add(cross);
+const glow=new THREE.PointLight('#ffcf87',2.2,90,2); glow.position.set(8,SH+10,8); scene.add(glow);
+
+// ---------- the 2 steel posts ----------
+const postMat=new THREE.MeshStandardMaterial({color:'#6f6a63',roughness:.5,metalness:.6});
+const posts=new THREE.Group();
+for(const [x,z] of COLS){
+  const p=new THREE.Mesh(new THREE.CylinderGeometry(0.85,0.85,POST_H,16),postMat);
+  p.position.set(x,POST_H/2,z); posts.add(p);
+  const cap=new THREE.Mesh(new THREE.BoxGeometry(2,0.5,2),postMat); cap.position.set(x,POST_H,z); posts.add(cap);
+}
+scene.add(posts);
+
+// ---------- chairs: one merged geometry, instanced, each facing the stage ----------
+function chairGeo(){
+  const parts=[];
+  const seat=new THREE.BoxGeometry(1.5,0.25,1.35); seat.translate(0,1.25,0);
+  const back=new THREE.BoxGeometry(1.5,1.35,0.2); back.translate(0,1.95,-0.58);
+  const ped =new THREE.BoxGeometry(0.6,1.25,0.6); ped.translate(0,0.62,0);
+  parts.push(seat,back,ped); return mergeGeometries(parts);
+}
+const seats=[];   // {x,z,a}
+(function layout(){
+  const d2r=Math.PI/180, aLo=6*d2r, aHi=86*d2r, aisles=[30*d2r,62*d2r], aw=4*d2r;
+  const near=(x,z)=>COLS.some(c=>(x-c[0])**2+(z-c[1])**2<9);
+  for(let r=20;r<=118;r+=3){
+    const dt=1.7/r;
+    for(let th=aLo;th<=aHi;th+=dt){
+      if(aisles.some(a=>Math.abs(th-a)<aw/2)) continue;
+      const x=FX+r*Math.cos(th), z=FZ+r*Math.sin(th);
+      if(!(x>3&&x<RW-3&&z>3&&z<RD-3)) continue;
+      if((x+z)<34 && x<30 && z<30) continue;     // stage zone
+      if(near(x,z)) continue;                      // around posts
+      if(r>58&&r<64) continue;                      // ring cross-aisle
+      const a=Math.atan2(FX-x, FZ-z);              // face the focal point
+      seats.push({x,z,a});
+    }
+  }
+})();
+const chairs=new THREE.InstancedMesh(chairGeo(),
+  new THREE.MeshStandardMaterial({color:'#8a4242',roughness:.85}), seats.length);
+const mtx=new THREE.Matrix4(), q=new THREE.Quaternion(), up=new THREE.Vector3(0,1,0), v=new THREE.Vector3(), one=new THREE.Vector3(1,1,1);
+seats.forEach((s,i)=>{ q.setFromAxisAngle(up,s.a); v.set(s.x,0,s.z); mtx.compose(v,q,one); chairs.setMatrixAt(i,mtx); });
+chairs.instanceMatrix.needsUpdate=true; scene.add(chairs);
+$('ct').textContent='~'+(Math.round(seats.length/10)*10).toLocaleString();
+
+// ---------- controls UI ----------
+$('spin').onclick=()=>{controls.autoRotate=!controls.autoRotate;
+  $('spin').classList.toggle('on',controls.autoRotate); $('spin').textContent='Spin: '+(controls.autoRotate?'on':'off');};
+$('posts').onclick=()=>{posts.visible=!posts.visible;
+  $('posts').classList.toggle('on',posts.visible); $('posts').textContent='Posts: '+(posts.visible?'shown':'hidden');};
+$('top').onclick=()=>{camera.position.set(RW/2+1,165,RD/2+2); controls.target.set(RW/2,0,RD/2); controls.autoRotate=false;
+  $('spin').classList.remove('on'); $('spin').textContent='Spin: off';};
+
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+(function tick(){controls.update();renderer.render(scene,camera);requestAnimationFrame(tick);})();
+setTimeout(()=>$('loader').classList.add('hide'),300);
+</script>
+</body>
+</html>
