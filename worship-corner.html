@@ -57,6 +57,7 @@
 <div class="ctrls">
   <button id="spin" class="on">Spin: on</button>
   <button id="posts" class="on">Posts: shown</button>
+  <button id="front">Front view</button>
   <button id="top">Top view</button>
 </div>
 <div class="legend">
@@ -85,8 +86,8 @@ const scene=new THREE.Scene();
 scene.background=new THREE.Color('#0f1112');
 scene.fog=new THREE.Fog('#0f1112', 170, 360);
 
-const camera=new THREE.PerspectiveCamera(48, innerWidth/innerHeight, 0.5, 2000);
-camera.position.set(RW+62, 78, RD+92);
+const camera=new THREE.PerspectiveCamera(52, innerWidth/innerHeight, 0.5, 2000);
+camera.position.set(105, 48, 108);
 
 const renderer=new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(innerWidth,innerHeight); renderer.setPixelRatio(Math.min(devicePixelRatio,2));
@@ -95,14 +96,14 @@ $('app').appendChild(renderer.domElement);
 
 const controls=new OrbitControls(camera,renderer.domElement);
 controls.enableDamping=true; controls.dampingFactor=.08;
-controls.target.set(54,4,40); controls.maxPolarAngle=Math.PI*0.49;
-controls.autoRotate=true; controls.autoRotateSpeed=0.45;
+controls.target.set(24,8,22); controls.maxPolarAngle=Math.PI*0.49;
+controls.autoRotate=true; controls.autoRotateSpeed=0.3;
 
 // ---------- lights ----------
-scene.add(new THREE.HemisphereLight('#f3ead8','#2a241c',0.7));
-scene.add(new THREE.AmbientLight('#ffffff',0.22));
-const key=new THREE.DirectionalLight('#fff4df',1.05); key.position.set(95,140,55); scene.add(key);
-const fill=new THREE.DirectionalLight('#cfe0ff',0.25); fill.position.set(-60,60,-40); scene.add(fill);
+scene.add(new THREE.HemisphereLight('#f6eeda','#33291d',0.95));
+scene.add(new THREE.AmbientLight('#ffffff',0.35));
+const key=new THREE.DirectionalLight('#fff4df',1.2); key.position.set(70,150,70); scene.add(key);
+const fill=new THREE.DirectionalLight('#cfe0ff',0.3); fill.position.set(-60,60,-40); scene.add(fill);
 
 // ---------- ground + floor ----------
 const ground=new THREE.Mesh(new THREE.PlaneGeometry(900,900),
@@ -125,33 +126,46 @@ wall(RW,0.6,RW/2,0);  wall(RW,0.6,RW/2,RD);   // front/back
 wall(0.6,RD,0,RD/2);  wall(0.6,RD,RW,RD/2);   // sides
 
 // ---------- corner stage (triangular platform) ----------
-const SH=3.5;
-const tri=new THREE.Shape(); tri.moveTo(0,0); tri.lineTo(40,0); tri.lineTo(0,40); tri.lineTo(0,0);
-const stageGeo=new THREE.ExtrudeGeometry(tri,{depth:SH,bevelEnabled:false});
-stageGeo.rotateX(-Math.PI/2);   // lay flat, extrude up +Y
-const stage=new THREE.Mesh(stageGeo,new THREE.MeshStandardMaterial({color:'#b5843c',roughness:.7,metalness:.05}));
-scene.add(stage);
+const SH=4.5;
+// stage backdrop: two solid dark walls framing the corner so the cross pops
+const bdMat=new THREE.MeshStandardMaterial({color:'#241f19',roughness:.92,side:THREE.DoubleSide});
+const bdH=24, bdL=54;
+const bd1=new THREE.Mesh(new THREE.BoxGeometry(0.9,bdH,bdL),bdMat); bd1.position.set(0.45,bdH/2,bdL/2); scene.add(bd1);
+const bd2=new THREE.Mesh(new THREE.BoxGeometry(bdL,bdH,0.9),bdMat); bd2.position.set(bdL/2,bdH/2,0.45); scene.add(bd2);
+const trimMat=new THREE.MeshStandardMaterial({color:'#b8853c',emissive:'#7a5a2f',emissiveIntensity:.35,roughness:.5});
+const tr1=new THREE.Mesh(new THREE.BoxGeometry(1.2,0.9,bdL),trimMat); tr1.position.set(0.6,bdH,bdL/2); scene.add(tr1);
+const tr2=new THREE.Mesh(new THREE.BoxGeometry(bdL,0.9,1.2),trimMat); tr2.position.set(bdL/2,bdH,0.6); scene.add(tr2);
+// raised stage platform (triangular, fills the corner)
+const tri=new THREE.Shape(); tri.moveTo(0,0); tri.lineTo(52,0); tri.lineTo(0,52); tri.lineTo(0,0);
+const stageGeo=new THREE.ExtrudeGeometry(tri,{depth:SH,bevelEnabled:false}); stageGeo.rotateX(-Math.PI/2);
+const stage=new THREE.Mesh(stageGeo,new THREE.MeshStandardMaterial({color:'#caa157',roughness:.6,metalness:.06})); scene.add(stage);
 // pulpit
-const pulpit=new THREE.Mesh(new THREE.BoxGeometry(2.2,3.6,1.4),
-  new THREE.MeshStandardMaterial({color:'#7a5a2f',roughness:.6}));
-pulpit.position.set(15,SH+1.8,15); scene.add(pulpit);
-
-// ---------- lit cross (behind the stage, in the corner) ----------
-const crossMat=new THREE.MeshStandardMaterial({color:'#e8c98a',emissive:'#e0b876',emissiveIntensity:1.1,roughness:.4,metalness:.3});
-const cg=[];
-cg.push(new THREE.BoxGeometry(1.1,15,1.1));               // vertical
-const cb=new THREE.BoxGeometry(6,1.1,1.1); cb.translate(0,4.2,0);  // horizontal
-cg.push(cb);
-const crossGeo=mergeGeometries(cg);
-const cross=new THREE.Mesh(crossGeo,crossMat);
-cross.position.set(7.5,SH+7.5,7.5); cross.rotation.y=Math.PI/4; scene.add(cross);
-const glow=new THREE.PointLight('#ffcf87',2.2,90,2); glow.position.set(8,SH+10,8); scene.add(glow);
+const pulpit=new THREE.Mesh(new THREE.BoxGeometry(2.4,4,1.6),new THREE.MeshStandardMaterial({color:'#6b4f28',roughness:.6}));
+pulpit.position.set(18,SH+2,18); scene.add(pulpit);
+// big lit cross on the backdrop
+const crossMat=new THREE.MeshStandardMaterial({color:'#f0d9a6',emissive:'#e8c074',emissiveIntensity:1.6,roughness:.35,metalness:.3});
+const cg=[new THREE.BoxGeometry(1.5,21,1.5)];
+const cb=new THREE.BoxGeometry(8.5,1.5,1.5); cb.translate(0,6,0); cg.push(cb);
+const cross=new THREE.Mesh(mergeGeometries(cg),crossMat);
+cross.position.set(9,SH+11.5,9); cross.rotation.y=Math.PI/4; scene.add(cross);
+const glow=new THREE.PointLight('#ffcf87',3.2,130,2); glow.position.set(11,SH+13,11); scene.add(glow);
+// spotlight washing the stage
+const spot=new THREE.SpotLight('#fff1d4',2.2,160,Math.PI/5,0.55,1); spot.position.set(34,52,34); spot.target.position.set(12,SH,12); scene.add(spot); scene.add(spot.target);
+// floating STAGE label so it is unmistakable
+function makeLabel(txt){
+  const c=document.createElement('canvas'); c.width=256; c.height=96; const g=c.getContext('2d');
+  g.font='bold 56px Helvetica,Arial,sans-serif'; g.textAlign='center'; g.textBaseline='middle';
+  g.fillStyle='rgba(0,0,0,0.55)'; g.fillText(txt,131,51); g.fillStyle='#f0d9a6'; g.fillText(txt,128,49);
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthTest:false}));
+  sp.scale.set(24,9,1); return sp;
+}
+const slabel=makeLabel('STAGE'); slabel.position.set(16,SH+27,16); scene.add(slabel);
 
 // ---------- the 2 steel posts ----------
-const postMat=new THREE.MeshStandardMaterial({color:'#6f6a63',roughness:.5,metalness:.6});
+const postMat=new THREE.MeshStandardMaterial({color:'#8a847a',roughness:.5,metalness:.5});
 const posts=new THREE.Group();
 for(const [x,z] of COLS){
-  const p=new THREE.Mesh(new THREE.CylinderGeometry(0.85,0.85,POST_H,16),postMat);
+  const p=new THREE.Mesh(new THREE.CylinderGeometry(0.62,0.62,POST_H,16),postMat);
   p.position.set(x,POST_H/2,z); posts.add(p);
   const cap=new THREE.Mesh(new THREE.BoxGeometry(2,0.5,2),postMat); cap.position.set(x,POST_H,z); posts.add(cap);
 }
@@ -195,6 +209,8 @@ $('spin').onclick=()=>{controls.autoRotate=!controls.autoRotate;
   $('spin').classList.toggle('on',controls.autoRotate); $('spin').textContent='Spin: '+(controls.autoRotate?'on':'off');};
 $('posts').onclick=()=>{posts.visible=!posts.visible;
   $('posts').classList.toggle('on',posts.visible); $('posts').textContent='Posts: '+(posts.visible?'shown':'hidden');};
+$('front').onclick=()=>{camera.position.set(108,22,108); controls.target.set(12,7,12); controls.autoRotate=false;
+  $('spin').classList.remove('on'); $('spin').textContent='Spin: off';};
 $('top').onclick=()=>{camera.position.set(RW/2+1,165,RD/2+2); controls.target.set(RW/2,0,RD/2); controls.autoRotate=false;
   $('spin').classList.remove('on'); $('spin').textContent='Spin: off';};
 
